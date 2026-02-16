@@ -4,30 +4,30 @@ A comprehensive web application that performs real cryptographic attacks and com
 
 ## Features
 
-### 🔐 File Encryption & Decryption
+### File Encryption & Decryption
 - Upload any file (text, images, PDFs, etc.)
 - Encrypt/decrypt using both TEA and AES algorithms
 - Real-time performance monitoring (CPU, memory, throughput)
 - Download encrypted/decrypted files
 
-### ⚡ Performance Analysis
+### Performance Analysis
 - Measure actual encryption/decryption times
 - CPU and memory usage monitoring
 - Throughput calculations (MB/s)
 - Side-channel timing analysis
 
-### 🛡️ Cryptographic Attacks
+### Cryptographic Attacks
 1. **Equivalent Key Analysis** - Demonstrates TEA's equivalent key weakness
 2. **Related-Key Attacks** - Shows TEA's vulnerability to related-key attacks
 3. **Avalanche Effect Test** - Compares diffusion strength between algorithms
 4. **Structural Analysis** - Explains why TEA fails while AES succeeds
 
-### 🔍 Brute-Force Study
+### Brute-Force Study
 - Real measurement of key attempts per second
 - Mathematical calculation of brute-force feasibility
 - Comparison of effective security strength
 
-### 📊 Modern UI
+### Modern UI
 - Clean, minimal interface with smooth animations
 - Interactive charts and visualizations
 - Responsive design for all devices
@@ -98,7 +98,7 @@ The frontend will start on `http://localhost:3000`
 ## Security Analysis Results
 
 ### TEA (Tiny Encryption Algorithm)
-**❌ COMPROMISED**
+**COMPROMISED**
 
 **Vulnerabilities:**
 - Equivalent keys exist (multiple keys produce same ciphertext)
@@ -113,7 +113,7 @@ The frontend will start on `http://localhost:3000`
 - But security trade-off is unacceptable
 
 ### AES (Advanced Encryption Standard)
-**✅ SECURE**
+**SECURE**
 
 **Strengths:**
 - No equivalent keys
