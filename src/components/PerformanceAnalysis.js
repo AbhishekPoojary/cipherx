@@ -21,7 +21,11 @@ const PerformanceAnalysis = () => {
       reader.onload = (e) => {
         const arrayBuffer = e.target.result;
         const bytes = new Uint8Array(arrayBuffer);
-        const hexData = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+        // Limit to first 1KB (1024 bytes) for performance testing
+        // Full file encryption is unnecessary for timing analysis
+        const sampleSize = Math.min(bytes.length, 1024);
+        const sampleBytes = bytes.slice(0, sampleSize);
+        const hexData = Array.from(sampleBytes, byte => byte.toString(16).padStart(2, '0')).join('');
         setTestData(hexData);
       };
       reader.readAsArrayBuffer(file);
@@ -63,10 +67,10 @@ const PerformanceAnalysis = () => {
     if (!results) return;
 
     const dataStr = JSON.stringify(results, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
+    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
     const exportFileDefaultName = 'performance_analysis_results.json';
-    
+
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
@@ -125,7 +129,7 @@ const PerformanceAnalysis = () => {
             <Activity className="w-5 h-5 mr-2 text-purple-600" />
             Test Configuration
           </h3>
-          
+
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -145,10 +149,10 @@ const PerformanceAnalysis = () => {
                     Selected: {testFile.name}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Size: {(testFile.size / 1024).toFixed(2)} KB
+                    File Size: {(testFile.size / 1024).toFixed(2)} KB
                   </p>
-                  <p className="text-sm text-gray-600">
-                    Data: {testData.length / 2} bytes
+                  <p className="text-sm text-green-600 font-medium">
+                    Sample: {testData.length / 2} bytes (max 1KB for analysis)
                   </p>
                 </div>
               )}
@@ -204,7 +208,7 @@ const PerformanceAnalysis = () => {
             <Clock className="w-5 h-5 mr-2 text-purple-600" />
             Timing Comparison
           </h3>
-          
+
           <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <h5 className="font-medium text-blue-800 mb-2">Performance Metrics Guide</h5>
             <div className="grid md:grid-cols-2 gap-4 text-sm">
@@ -234,7 +238,7 @@ const PerformanceAnalysis = () => {
               </div>
             </div>
           </div>
-          
+
           {results && (
             <div className="space-y-4">
               <div className="chart-container">
@@ -407,7 +411,7 @@ const PerformanceAnalysis = () => {
             <div>
               <h5 className="font-medium text-purple-600 mb-2">TEA Timing Leakage</h5>
               <p className="text-sm text-gray-600">
-                {results.TEA.coefficient_of_variation > 0.01 
+                {results.TEA.coefficient_of_variation > 0.01
                   ? "High timing variance detected. TEA shows significant timing leakage, indicating higher susceptibility to timing-based side-channel analysis."
                   : "Low timing variance detected."}
               </p>
@@ -427,7 +431,7 @@ const PerformanceAnalysis = () => {
               </p>
             </div>
           </div>
-          
+
           <button
             onClick={exportResults}
             className="mt-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors flex items-center"
