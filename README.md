@@ -35,6 +35,12 @@ A comprehensive web application that performs real cryptographic attacks and com
 
 ## Installation
 
+### Prerequisites
+
+- **Python**: 3.8 or higher
+- **Node.js**: 16.0 or higher
+- **npm**: 7.0 or higher (comes with Node.js)
+
 ### Backend Setup
 
 1. Install Python dependencies:
@@ -62,6 +68,27 @@ npm start
 ```
 
 The frontend will start on `http://localhost:3000`
+
+### Troubleshooting
+
+**Backend won't start:**
+- Ensure Python 3.8+ is installed: `python --version`
+- Check if port 5000 is in use: `lsof -i :5000` (macOS/Linux) or `netstat -ano | findstr :5000` (Windows)
+- Verify all dependencies are installed: `pip list | grep -E "flask|cryptography|psutil"`
+
+**Frontend won't start:**
+- Ensure Node.js 16+ is installed: `node --version`
+- Clear npm cache: `npm cache clean --force`
+- Delete `node_modules` and reinstall: `rm -rf node_modules && npm install`
+
+**CORS errors:**
+- Verify backend is running on `http://localhost:5000`
+- Check that `CORS(app)` is enabled in `app.py`
+
+**File upload fails:**
+- Check file size (max 16MB for standard uploads)
+- Ensure upload directory exists and has write permissions
+- Verify file type is supported (all types supported)
 
 ## Usage
 
@@ -136,6 +163,20 @@ The frontend will start on `http://localhost:3000`
 - All cryptographic operations server-side
 - RESTful API endpoints
 
+### API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/encrypt` | POST | Encrypt file with TEA or AES |
+| `/decrypt` | POST | Decrypt file with TEA or AES |
+| `/generate-key` | POST | Generate random 128-bit key |
+| `/performance` | POST | Run performance benchmark |
+| `/attack/equivalent-keys` | POST | Demonstrate TEA equivalent key weakness |
+| `/attack/related-key` | POST | Show related-key attack vulnerability |
+| `/attack/avalanche` | POST | Compare avalanche effect between algorithms |
+| `/brute-force` | POST | Calculate brute-force feasibility |
+| `/download/<file_id>` | GET | Download encrypted/decrypted file |
+
 ### Frontend (React)
 - Modern UI with Tailwind CSS
 - Framer Motion for animations
@@ -163,7 +204,51 @@ This application is designed for:
 
 ## Contributing
 
-This is an educational project. Feel free to:
+### Development Setup
+
+1. Fork the repository
+2. Clone your fork:
+```bash
+git clone https://github.com/your-username/cipherx.git
+cd cipherx
+```
+
+3. Create a virtual environment for Python:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+4. Install frontend dependencies:
+```bash
+npm install
+```
+
+5. Create a new branch for your feature:
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### Contribution Guidelines
+
+- Follow PEP 8 style guide for Python code
+- Use ESLint configuration for JavaScript/React code
+- Add comments for complex cryptographic operations
+- Update tests if modifying core algorithms
+- Ensure all existing tests pass before submitting PR
+- Update README.md if adding new features
+
+### Reporting Issues
+
+When reporting bugs, please include:
+- Python and Node.js versions
+- Operating system
+- Steps to reproduce the issue
+- Expected vs actual behavior
+- Error messages or screenshots
+
+Feel free to:
 - Report issues
 - Suggest improvements
 - Add new attack simulations
