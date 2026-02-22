@@ -121,54 +121,54 @@ const StructuralAnalysis = () => {
           className="bg-white rounded-lg p-6 border border-gray-200"
         >
           <h3 className="text-lg font-semibold mb-4 flex items-center">
-            <div className="w-5 h-5 mr-2 bg-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-xs font-bold">A</span>
+            <div className="w-5 h-5 mr-2 bg-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">N</span>
             </div>
-            AES (Advanced Encryption Standard)
+            NTSA_3.5
           </h3>
           
           <div className="space-y-4">
-            <div className="bg-blue-50 rounded-lg p-4">
-              <h4 className="font-medium text-blue-800 mb-2 flex items-center">
+            <div className="bg-purple-50 rounded-lg p-4">
+              <h4 className="font-medium text-purple-800 mb-2 flex items-center">
                 <Layers className="w-4 h-4 mr-2" />
                 Structure
               </h4>
               <div className="text-sm space-y-1 text-gray-700">
-                <p><span className="font-medium">Round Structure:</span> {analysis.AES.round_structure}</p>
-                <p><span className="font-medium">Block Size:</span> {analysis.AES.block_size}</p>
-                <p><span className="font-medium">Key Size:</span> {analysis.AES.key_size}</p>
+                <p><span className="font-medium">Round Structure:</span> {analysis['NTSA_3.5']?.round_structure}</p>
+                <p><span className="font-medium">Block Size:</span> {analysis['NTSA_3.5']?.block_size}</p>
+                <p><span className="font-medium">Key Size:</span> {analysis['NTSA_3.5']?.key_size}</p>
               </div>
             </div>
 
-            <div className="bg-purple-50 rounded-lg p-4">
-              <h4 className="font-medium text-purple-800 mb-2 flex items-center">
+            <div className="bg-blue-50 rounded-lg p-4">
+              <h4 className="font-medium text-blue-800 mb-2 flex items-center">
                 <Key className="w-4 h-4 mr-2" />
                 Key Schedule
               </h4>
-              <p className="text-sm text-gray-700">{analysis.AES.key_schedule}</p>
+              <p className="text-sm text-gray-700">{analysis['NTSA_3.5']?.key_schedule}</p>
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-2 flex items-center">
+            <div className="bg-orange-50 rounded-lg p-4">
+              <h4 className="font-medium text-orange-800 mb-2 flex items-center">
                 <Zap className="w-4 h-4 mr-2" />
                 Confusion & Diffusion
               </h4>
               <div className="text-sm space-y-1 text-gray-700">
-                <p><span className="font-medium">Confusion:</span> {analysis.AES.confusion}</p>
-                <p><span className="font-medium">Diffusion:</span> {analysis.AES.diffusion}</p>
+                <p><span className="font-medium">Confusion:</span> {analysis['NTSA_3.5']?.confusion}</p>
+                <p><span className="font-medium">Diffusion:</span> {analysis['NTSA_3.5']?.diffusion}</p>
               </div>
             </div>
 
-            <div className="bg-green-50 rounded-lg p-4">
-              <h4 className="font-medium text-green-800 mb-2 flex items-center">
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Security Strengths
+            <div className="bg-amber-50 rounded-lg p-4">
+              <h4 className="font-medium text-amber-800 mb-2 flex items-center">
+                <AlertTriangle className="w-4 h-4 mr-2" />
+                Notes
               </h4>
               <ul className="text-sm space-y-1 text-gray-700">
-                {analysis.AES.strengths.map((strength, index) => (
+                {analysis['NTSA_3.5']?.weaknesses?.map((item, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-green-500 mr-2">•</span>
-                    {strength}
+                    <span className="text-amber-500 mr-2">•</span>
+                    {item}
                   </li>
                 ))}
               </ul>
@@ -204,16 +204,16 @@ const StructuralAnalysis = () => {
           </div>
           
           <div className="text-center">
-            <div className="w-16 h-16 mx-auto mb-3 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+            <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center">
+              <Key className="w-8 h-8 text-purple-600" />
             </div>
-            <h4 className="font-medium text-green-800 mb-2">AES Strengths</h4>
+            <h4 className="font-medium text-purple-800 mb-2">NTSA_3.5 Features</h4>
             <ul className="text-sm text-left text-gray-700 space-y-1">
-              <li>• Substitution-Permutation Network</li>
-              <li>• Complex key schedule</li>
-              <li>• No equivalent keys</li>
-              <li>• Strong avalanche effect</li>
-              <li>• Resistant to known attacks</li>
+              <li>• Dynamic key evolution</li>
+              <li>• xtract with dynamic table</li>
+              <li>• Key-dependent mixing</li>
+              <li>• 32 cycles with AND operations</li>
+              <li>• 64-bit block, 128-bit key</li>
             </ul>
           </div>
           
@@ -221,12 +221,12 @@ const StructuralAnalysis = () => {
             <div className="w-16 h-16 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center">
               <Shield className="w-8 h-8 text-purple-600" />
             </div>
-            <h4 className="font-medium text-purple-800 mb-2">Security Verdict</h4>
+            <h4 className="font-medium text-purple-800 mb-2">Analysis Scope</h4>
             <div className="text-sm text-left text-gray-700 space-y-2">
               <p className="font-medium">TEA: <span className="text-red-600">COMPROMISED</span></p>
               <p className="text-xs">Multiple structural weaknesses make it unsuitable for security-critical applications.</p>
-              <p className="font-medium mt-2">AES: <span className="text-green-600">SECURE</span></p>
-              <p className="text-xs">Widely adopted standard with proven resistance to all known attacks.</p>
+              <p className="font-medium mt-2">NTSA_3.5: <span className="text-purple-600">UNDER ANALYSIS</span></p>
+              <p className="text-xs">Dynamic key evolution and xtract design - compare with TEA in Performance, Attacks, and Brute-Force sections.</p>
             </div>
           </div>
         </div>
@@ -258,18 +258,17 @@ const StructuralAnalysis = () => {
           </div>
 
           <div>
-            <h4 className="font-medium mb-2 text-blue-600">Why AES Meets Modern Security Requirements</h4>
-            <div className="bg-green-50 rounded-lg p-4">
+            <h4 className="font-medium mb-2 text-purple-600">NTSA_3.5 Design Overview</h4>
+            <div className="bg-purple-50 rounded-lg p-4">
               <p className="text-sm text-gray-700 mb-2">
-                AES uses a Substitution-Permutation Network (SPN) structure that provides excellent confusion and diffusion. 
-                The Rijndael S-box offers non-linear substitution, while the ShiftRows and MixColumns operations ensure 
-                rapid diffusion of input changes throughout the state. The complex key schedule generates unique round keys 
-                that eliminate equivalent key vulnerabilities.
+                NTSA_3.5 uses dynamic key evolution where k1 and k3 evolve during encryption via xtract(v, dynamic_table). 
+                The dynamic table is generated from the key, and the xtract function folds a 32-bit value to index into 
+                the table. This provides key-dependent mixing beyond TEA's fixed schedule.
               </p>
               <p className="text-sm text-gray-700">
-                AES achieves near-perfect avalanche effect (~50% bit change for single input bit flips) and has withstood 
-                decades of intensive cryptanalysis. No practical attacks exist against properly implemented AES-128, 
-                making it the global standard for symmetric encryption.
+                Uses AND operations instead of addition for mixing (e.g. (v1&lt;&lt;4)&amp;k0, v1&amp;kc, (v1&gt;&gt;5)&amp;k1), 
+                with 32 cycles and DELTA-based kc. Final keys are stored per block for decryption. 
+                AES is used exclusively for file encryption in this application.
               </p>
             </div>
           </div>

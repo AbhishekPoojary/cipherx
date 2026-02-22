@@ -55,14 +55,14 @@ const BruteForceStudy = () => {
 
     return [
       {
+        algorithm: 'NTSA_3.5',
+        'Attempts/Second': results['NTSA_3.5']?.attempts_per_second,
+        'Years to Exhaust': Math.log10(results['NTSA_3.5']?.years_to_exhaust || 1),
+      },
+      {
         algorithm: 'TEA',
         'Attempts/Second': results.TEA.attempts_per_second,
         'Years to Exhaust': Math.log10(results.TEA.years_to_exhaust),
-      },
-      {
-        algorithm: 'AES',
-        'Attempts/Second': results.AES.attempts_per_second,
-        'Years to Exhaust': Math.log10(results.AES.years_to_exhaust),
       }
     ];
   };
@@ -184,7 +184,41 @@ const BruteForceStudy = () => {
           className="grid md:grid-cols-2 gap-6"
         >
           <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <h4 className="font-semibold mb-4 text-purple-600">TEA Brute-Force Analysis</h4>
+            <h4 className="font-semibold mb-4 text-purple-600">NTSA_3.5 Brute-Force Analysis</h4>
+            <div className="space-y-3">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Key Space:</span>
+                <span className="font-medium">{formatLargeNumber(results['NTSA_3.5']?.total_key_space)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Attempts/Second:</span>
+                <span className="font-medium">{formatLargeNumber(results['NTSA_3.5']?.attempts_per_second)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Time to Exhaust:</span>
+                <span className="font-medium">{formatTime(results['NTSA_3.5']?.seconds_to_exhaust)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Years to Exhaust:</span>
+                <span className="font-medium text-red-600">
+                  {results['NTSA_3.5']?.years_to_exhaust?.toExponential(2)} years
+                </span>
+              </div>
+            </div>
+            
+            <div className="mt-4 p-3 bg-purple-50 rounded-lg">
+              <div className="flex items-start">
+                <Key className="w-5 h-5 mr-2 text-purple-600 flex-shrink-0 mt-0.5" />
+                <div className="text-sm text-purple-800">
+                  <p className="font-medium">NTSA_3.5 Security Assessment:</p>
+                  <p>NTSA_3.5 uses dynamic key evolution with 128-bit key space. Analysis compares performance against TEA.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-lg p-6 border border-gray-200">
+            <h4 className="font-semibold mb-4 text-blue-600">TEA Brute-Force Analysis</h4>
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-600">Key Space:</span>
@@ -200,7 +234,7 @@ const BruteForceStudy = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Years to Exhaust:</span>
-                <span className="font-medium text-red-600">
+                <span className="font-medium text-green-600">
                   {results.TEA.years_to_exhaust.toExponential(2)} years
                 </span>
               </div>
@@ -211,41 +245,7 @@ const BruteForceStudy = () => {
                 <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-yellow-800">
                   <p className="font-medium">TEA Security Assessment:</p>
-                  <p>While TEA has a large key space, its structural weaknesses (equivalent keys, related-key attacks) make it less secure than AES despite similar brute-force resistance.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <h4 className="font-semibold mb-4 text-blue-600">AES Brute-Force Analysis</h4>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Key Space:</span>
-                <span className="font-medium">{formatLargeNumber(results.AES.total_key_space)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Attempts/Second:</span>
-                <span className="font-medium">{formatLargeNumber(results.AES.attempts_per_second)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Time to Exhaust:</span>
-                <span className="font-medium">{formatTime(results.AES.seconds_to_exhaust)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Years to Exhaust:</span>
-                <span className="font-medium text-green-600">
-                  {results.AES.years_to_exhaust.toExponential(2)} years
-                </span>
-              </div>
-            </div>
-            
-            <div className="mt-4 p-3 bg-green-50 rounded-lg">
-              <div className="flex items-start">
-                <Key className="w-5 h-5 mr-2 text-green-600 flex-shrink-0 mt-0.5" />
-                <div className="text-sm text-green-800">
-                  <p className="font-medium">AES Security Assessment:</p>
-                  <p>AES provides strong security against brute-force attacks with no known structural weaknesses. The implementation is optimized for both security and performance.</p>
+                  <p>TEA has a large key space but structural weaknesses (equivalent keys, related-key attacks) make it less secure despite similar brute-force resistance.</p>
                 </div>
               </div>
             </div>
@@ -271,32 +271,32 @@ const BruteForceStudy = () => {
             
             <div className="text-center">
               <div className="text-3xl font-bold text-orange-600 mb-2">
-                {results.TEA.years_to_exhaust > results.AES.years_to_exhaust ? 'TEA' : 'AES'}
+                {results['NTSA_3.5']?.attempts_per_second > results.TEA.attempts_per_second ? 'NTSA_3.5' : 'TEA'}
               </div>
               <p className="text-sm text-gray-600">Faster Algorithm</p>
               <p className="text-xs text-gray-500 mt-1">
-                {results.TEA.attempts_per_second > results.AES.attempts_per_second 
-                  ? 'TEA processes more attempts/second'
-                  : 'AES processes more attempts/second'}
+                {results['NTSA_3.5']?.attempts_per_second > results.TEA.attempts_per_second 
+                  ? 'NTSA_3.5 processes more attempts/second'
+                  : 'TEA processes more attempts/second'}
               </p>
             </div>
             
             <div className="text-center">
               <div className="text-3xl font-bold text-green-600 mb-2">
-                AES
+                2¹²⁸
               </div>
-              <p className="text-sm text-gray-600">More Secure Overall</p>
-              <p className="text-xs text-gray-500 mt-1">No structural weaknesses</p>
+              <p className="text-sm text-gray-600">Both Key Space</p>
+              <p className="text-xs text-gray-500 mt-1">NTSA_3.5 and TEA use 128-bit keys</p>
             </div>
           </div>
           
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
             <h5 className="font-medium mb-2">Key Findings:</h5>
             <ul className="text-sm space-y-1 text-gray-700">
-              <li>• Both TEA and AES have the same theoretical key space (2¹²⁸)</li>
+              <li>• Both NTSA_3.5 and TEA have the same theoretical key space (2¹²⁸)</li>
               <li>• Brute-force attacks are computationally infeasible for both algorithms</li>
               <li>• TEA's structural weaknesses make it vulnerable to other attacks despite brute-force resistance</li>
-              <li>• AES provides comprehensive security against all known attack vectors</li>
+              <li>• NTSA_3.5 uses dynamic key evolution for enhanced mixing</li>
               <li>• Real-world security depends on more than just key size - algorithm structure matters</li>
             </ul>
           </div>

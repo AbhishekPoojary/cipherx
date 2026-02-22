@@ -144,8 +144,7 @@ const FileEncryption = () => {
                 onChange={(e) => setAlgorithm(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                <option value="AES">AES (Advanced Encryption Standard)</option>
-                <option value="TEA">TEA (Tiny Encryption Algorithm)</option>
+                <option value="AES">AES (Advanced Encryption Standard) - File encryption only</option>
               </select>
             </div>
 
