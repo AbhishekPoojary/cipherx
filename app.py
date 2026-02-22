@@ -99,6 +99,96 @@ class TEACipher:
         
         return bytes(result)
 
+class NTSA35Cipher:
+    """NTSA_3.5 algorithm - ported exactly from ntsa_v3.5.c without modification."""
+    DELTA = 0x9E3779B9
+    NUM_CYCLES = 32
+
+    def __init__(self, key):
+        if len(key) != 16:
+            raise ValueError("NTSA_3.5 requires 128-bit (16-byte) key")
+        self.key = struct.unpack('>4I', key)
+        self.dynamic_table = [0] * 32
+        self._init_dynamic_table()
+
+    def _init_dynamic_table(self):
+        state = list(self.key)
+        for i in range(32):
+            state[0] = (state[0] + ((state[3] ^ self.DELTA) + (state[1] << 4))) & 0xFFFFFFFF
+            state[1] = (state[1] + ((state[0] ^ self.DELTA) + (state[2] >> 5))) & 0xFFFFFFFF
+            state[2] = (state[2] + ((state[1] ^ self.DELTA) + (state[3] << 4))) & 0xFFFFFFFF
+            state[3] = (state[3] + ((state[2] ^ self.DELTA) + (state[0] >> 5))) & 0xFFFFFFFF
+            self.dynamic_table[i] = (state[0] ^ state[1] ^ state[2] ^ state[3]) & 0xFFFFFFFF
+
+    def _xtract(self, v):
+        v = v & 0xFFFFFFFF
+        v ^= v >> 16
+        v ^= v >> 8
+        v ^= v >> 4
+        v ^= v >> 2
+        v ^= v >> 1
+        index = v & 31
+        return self.dynamic_table[index]
+
+    def encrypt_block(self, v):
+        v0, v1 = v
+        k0, k1, k2, k3 = self.key
+        kc = 0
+
+        for _ in range(self.NUM_CYCLES):
+            kc = (kc + self.DELTA) & 0xFFFFFFFF
+            v0 = (v0 + (((v1 << 4) & k0) ^ (v1 & kc) ^ ((v1 >> 5) & k1))) & 0xFFFFFFFF
+            k1 = (k1 + (k0 ^ self._xtract(v0))) & 0xFFFFFFFF
+            v1 = (v1 + (((v0 << 4) & k2) ^ (v0 & kc) ^ ((v0 >> 5) & k3))) & 0xFFFFFFFF
+            k3 = (k3 + (k2 ^ self._xtract(v1))) & 0xFFFFFFFF
+
+        return (v0, v1), (k1, k3)
+
+    def decrypt_block(self, v, final_keys):
+        v0, v1 = v
+        k0, _, k2, _ = self.key
+        k1, k3 = final_keys
+        kc = (self.DELTA * 32) & 0xFFFFFFFF  # 0xC6EF3720
+
+        for _ in range(self.NUM_CYCLES):
+            k3 = (k3 - (k2 ^ self._xtract(v1))) & 0xFFFFFFFF
+            v1 = (v1 - (((v0 << 4) & k2) ^ (v0 & kc) ^ ((v0 >> 5) & k3))) & 0xFFFFFFFF
+            k1 = (k1 - (k0 ^ self._xtract(v0))) & 0xFFFFFFFF
+            v0 = (v0 - (((v1 << 4) & k0) ^ (v1 & kc) ^ ((v1 >> 5) & k1))) & 0xFFFFFFFF
+            kc = (kc - self.DELTA) & 0xFFFFFFFF
+
+        return v0, v1
+
+    def encrypt(self, data):
+        pad_len = 8 - (len(data) % 8)
+        data = data + bytes([pad_len] * pad_len)
+
+        result = bytearray()
+        for i in range(0, len(data), 8):
+            block = struct.unpack('>2I', data[i:i+8])
+            (v0, v1), (fk1, fk3) = self.encrypt_block(block)
+            result.extend(struct.pack('>2I', fk1, fk3))  # Store final_keys first (as in C)
+            result.extend(struct.pack('>2I', v0, v1))
+
+        return bytes(result)
+
+    def decrypt(self, data):
+        result = bytearray()
+        i = 0
+        while i + 16 <= len(data):  # 8 bytes final_keys + 8 bytes block
+            final_keys = struct.unpack('>2I', data[i:i+8])
+            block = struct.unpack('>2I', data[i+8:i+16])
+            v0, v1 = self.decrypt_block(block, final_keys)
+            result.extend(struct.pack('>2I', v0, v1))
+            i += 16
+
+        if result:
+            pad_len = result[-1]
+            if pad_len <= 8:
+                result = result[:-pad_len]
+
+        return bytes(result)
+
 class AESCipher:
     def __init__(self, key):
         if len(key) != 16:
@@ -161,19 +251,16 @@ def encrypt_file():
         
         monitor = PerformanceMonitor()
         monitor.start()
-        
-        if algorithm.upper() == 'TEA':
-            cipher = TEACipher(key)
-            encrypted_data = cipher.encrypt(data)
-        else:  # AES
-            cipher = AESCipher(key)
-            encrypted_data = cipher.encrypt(data)
+
+        # File encryption: AES only
+        cipher = AESCipher(key)
+        encrypted_data = cipher.encrypt(data)
         
         performance = monitor.stop()
         throughput = len(data) / (performance['time_ms'] / 1000) / 1024 / 1024  # MB/s
         
-        # Save encrypted file
-        filename = f"encrypted_{algorithm}_{int(time.time())}{file_extension}"
+        # Save encrypted file (AES only)
+        filename = f"encrypted_AES_{int(time.time())}{file_extension}"
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         with open(filepath, 'wb') as f:
             f.write(encrypted_data)
@@ -221,19 +308,16 @@ def decrypt_file():
         
         monitor = PerformanceMonitor()
         monitor.start()
-        
-        if algorithm.upper() == 'TEA':
-            cipher = TEACipher(key)
-            decrypted_data = cipher.decrypt(data)
-        else:  # AES
-            cipher = AESCipher(key)
-            decrypted_data = cipher.decrypt(data)
+
+        # File decryption: AES only
+        cipher = AESCipher(key)
+        decrypted_data = cipher.decrypt(data)
         
         performance = monitor.stop()
         throughput = len(decrypted_data) / (performance['time_ms'] / 1000) / 1024 / 1024  # MB/s
         
-        # Save decrypted file
-        filename = f"decrypted_{algorithm}_{int(time.time())}{file_extension}"
+        # Save decrypted file (AES only)
+        filename = f"decrypted_AES_{int(time.time())}{file_extension}"
         filepath = os.path.join(UPLOAD_FOLDER, filename)
         with open(filepath, 'wb') as f:
             f.write(decrypted_data)
@@ -279,7 +363,8 @@ def equivalent_keys_analysis():
         if len(base_key) != 16:
             return jsonify({'error': 'Key must be 128-bit (32 hex characters)'}), 400
         
-        results = {'TEA': [], 'AES': []}
+        # Cryptographic attacks: NTSA_3.5 and TEA only (no AES)
+        results = {'TEA': [], 'NTSA_3.5': []}
         
         # Generate actual TEA equivalent keys
         tea_cipher = TEACipher(base_key)
@@ -314,21 +399,22 @@ def equivalent_keys_analysis():
                 'note': 'Mathematically equivalent - should match base'
             })
         
-        # Test AES (should have no equivalent keys)
-        aes_cipher = AESCipher(base_key)
-        aes_base_ciphertext = aes_cipher.encrypt(plaintext)
+        # Test NTSA_3.5 (modified keys -> different output)
+        ntsa_cipher = NTSA35Cipher(base_key)
+        ntsa_base_ciphertext = ntsa_cipher.encrypt(plaintext)
         
         for i in range(5):
             modified_key = bytearray(base_key)
             modified_key[i] = (modified_key[i] + 1) % 256
             
-            test_cipher = AESCipher(bytes(modified_key))
+            test_cipher = NTSA35Cipher(bytes(modified_key))
             test_ciphertext = test_cipher.encrypt(plaintext)
             
-            results['AES'].append({
+            results['NTSA_3.5'].append({
                 'key': modified_key.hex(),
                 'ciphertext': test_ciphertext.hex(),
-                'matches_base': test_ciphertext == aes_base_ciphertext
+                'matches_base': test_ciphertext == ntsa_base_ciphertext,
+                'is_equivalent': False
             })
         
         return jsonify({'success': True, 'results': results})
@@ -350,7 +436,8 @@ def related_key_attack():
         if len(base_key) != 16:
             return jsonify({'error': 'Key must be 128-bit (32 hex characters)'}), 400
         
-        results = {'TEA': [], 'AES': []}
+        # Cryptographic attacks: NTSA_3.5 and TEA only (no AES)
+        results = {'TEA': [], 'NTSA_3.5': []}
         
         # Test TEA related keys
         tea_base = TEACipher(base_key)
@@ -376,20 +463,20 @@ def related_key_attack():
                 'correlation': correlation
             })
         
-        # Test AES related keys
-        aes_base = AESCipher(base_key)
-        aes_base_ciphertext = aes_base.encrypt(plaintext)
+        # Test NTSA_3.5 related keys
+        ntsa_base = NTSA35Cipher(base_key)
+        ntsa_base_ciphertext = ntsa_base.encrypt(plaintext)
         
         for delta in [0x01, 0x10, 0x100, 0x1000]:
             modified_key = bytearray(base_key)
             modified_key[0] = (modified_key[0] + delta) % 256
             
-            test_cipher = AESCipher(bytes(modified_key))
+            test_cipher = NTSA35Cipher(bytes(modified_key))
             test_ciphertext = test_cipher.encrypt(plaintext)
             
-            correlation = sum(a ^ b for a, b in zip(test_ciphertext, aes_base_ciphertext))
+            correlation = sum(a ^ b for a, b in zip(test_ciphertext, ntsa_base_ciphertext))
             
-            results['AES'].append({
+            results['NTSA_3.5'].append({
                 'delta': hex(delta),
                 'key': bytes(modified_key).hex(),
                 'ciphertext': test_ciphertext.hex(),
@@ -419,11 +506,12 @@ def avalanche_test():
         
         results = {}
         
-        for algorithm in ['TEA', 'AES']:
+        # Cryptographic attacks: NTSA_3.5 and TEA only (no AES)
+        for algorithm in ['TEA', 'NTSA_3.5']:
             if algorithm == 'TEA':
                 cipher = TEACipher(key)
             else:
-                cipher = AESCipher(key)
+                cipher = NTSA35Cipher(key)
             
             base_ciphertext = cipher.encrypt(plaintext)
             
@@ -490,11 +578,12 @@ def timing_analysis():
         
         results = {}
         
-        for algorithm in ['TEA', 'AES']:
+        # Performance analysis: NTSA_3.5 and TEA only (no AES)
+        for algorithm in ['NTSA_3.5', 'TEA']:
             if algorithm == 'TEA':
                 cipher = TEACipher(key)
             else:
-                cipher = AESCipher(key)
+                cipher = NTSA35Cipher(key)
             
             timings = []
             
@@ -543,11 +632,12 @@ def brute_force_study():
         
         results = {}
         
-        for algorithm in ['TEA', 'AES']:
+        # Brute-force study: NTSA_3.5 and TEA only (no AES)
+        for algorithm in ['NTSA_3.5', 'TEA']:
             if algorithm == 'TEA':
                 cipher = TEACipher(key)
             else:
-                cipher = AESCipher(key)
+                cipher = NTSA35Cipher(key)
             
             # Measure key attempts per second
             start_time = time.perf_counter()
@@ -557,7 +647,7 @@ def brute_force_study():
                 if algorithm == 'TEA':
                     test_cipher = TEACipher(test_key)
                 else:
-                    test_cipher = AESCipher(test_key)
+                    test_cipher = NTSA35Cipher(test_key)
                 test_cipher.encrypt(plaintext)
             
             end_time = time.perf_counter()
@@ -584,6 +674,7 @@ def brute_force_study():
 @app.route('/api/structural-analysis', methods=['GET'])
 def structural_analysis():
     try:
+        # Structural analysis: NTSA_3.5 and TEA only (no AES)
         analysis = {
             'TEA': {
                 'round_structure': '64 rounds (32 cycles of 2 rounds)',
@@ -599,18 +690,17 @@ def structural_analysis():
                 'block_size': '64 bits',
                 'key_size': '128 bits'
             },
-            'AES': {
-                'round_structure': '10 rounds for AES-128',
-                'key_schedule': 'Complex key expansion with Rijndael S-box',
-                'confusion': 'Strong - non-linear S-box substitution',
-                'diffusion': 'Excellent - linear mixing layer (ShiftRows + MixColumns)',
-                'strengths': [
-                    'No equivalent keys',
-                    'Resistant to related-key attacks',
-                    'Complex key schedule',
-                    'Strong avalanche effect (~50% bit change)'
+            'NTSA_3.5': {
+                'round_structure': '32 cycles with dynamic key evolution',
+                'key_schedule': 'Dynamic table from key + key evolution per round',
+                'confusion': 'Enhanced - xtract with dynamic table lookup',
+                'diffusion': 'Improved - key-dependent mixing via AND operations',
+                'weaknesses': [
+                    'Newer algorithm - limited cryptanalysis',
+                    'Block size 64 bits',
+                    'Requires final_keys storage per block'
                 ],
-                'block_size': '128 bits',
+                'block_size': '64 bits',
                 'key_size': '128 bits'
             }
         }
@@ -760,7 +850,8 @@ def statistical_cryptanalysis():
         if len(key) != 16:
             return jsonify({'error': 'Key must be 128-bit (32 hex characters)'}), 400
         
-        cipher = TEACipher(key) if algorithm == 'TEA' else AESCipher(key)
+        # Statistical analysis: NTSA_3.5 and TEA only (no AES)
+        cipher = TEACipher(key) if algorithm == 'TEA' else NTSA35Cipher(key)
         
         results = {
             'algorithm': algorithm,
@@ -1015,13 +1106,13 @@ def rigorous_timing_sidechannel():
                 key_clear = bytearray(base_key)
                 key_clear[byte_pos] &= ~(1 << (bit_pos % 8))
                 
-                # Measure timing for both
+                # Timing side-channel: NTSA_3.5 and TEA only (no AES)
                 if algorithm == 'TEA':
                     cipher_set = TEACipher(bytes(key_set))
                     cipher_clear = TEACipher(bytes(key_clear))
                 else:
-                    cipher_set = AESCipher(bytes(key_set))
-                    cipher_clear = AESCipher(bytes(key_clear))
+                    cipher_set = NTSA35Cipher(bytes(key_set))
+                    cipher_clear = NTSA35Cipher(bytes(key_clear))
                 
                 plaintext = os.urandom(64)
                 
