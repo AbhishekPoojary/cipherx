@@ -80,36 +80,36 @@ const PerformanceAnalysis = () => {
   const chartData = results ? [
     {
       metric: 'Avg Time (μs)',
+      'NTSA_3.5': results['NTSA_3.5']?.average_time_us,
       TEA: results.TEA.average_time_us,
-      AES: results.AES.average_time_us,
     },
     {
       metric: 'Min Time (μs)',
+      'NTSA_3.5': results['NTSA_3.5']?.min_time_us,
       TEA: results.TEA.min_time_us,
-      AES: results.AES.min_time_us,
     },
     {
       metric: 'Max Time (μs)',
+      'NTSA_3.5': results['NTSA_3.5']?.max_time_us,
       TEA: results.TEA.max_time_us,
-      AES: results.AES.max_time_us,
     },
     {
       metric: 'Std Dev (μs)',
+      'NTSA_3.5': results['NTSA_3.5']?.std_deviation_us,
       TEA: results.TEA.std_deviation_us,
-      AES: results.AES.std_deviation_us,
     }
   ] : [];
 
   const varianceData = results ? [
     {
+      algorithm: 'NTSA_3.5',
+      variance: results['NTSA_3.5']?.variance_us,
+      coefficient: results['NTSA_3.5']?.coefficient_of_variation,
+    },
+    {
       algorithm: 'TEA',
       variance: results.TEA.variance_us,
       coefficient: results.TEA.coefficient_of_variation,
-    },
-    {
-      algorithm: 'AES',
-      variance: results.AES.variance_us,
-      coefficient: results.AES.coefficient_of_variation,
     }
   ] : [];
 
@@ -249,8 +249,8 @@ const PerformanceAnalysis = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="TEA" fill="#8b5cf6" />
-                    <Bar dataKey="AES" fill="#3b82f6" />
+                    <Bar dataKey="NTSA_3.5" fill="#8b5cf6" />
+                    <Bar dataKey="TEA" fill="#3b82f6" />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -287,13 +287,13 @@ const PerformanceAnalysis = () => {
           className="grid md:grid-cols-2 gap-6"
         >
           <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <h4 className="font-semibold mb-4 text-purple-600">TEA Performance</h4>
+            <h4 className="font-semibold mb-4 text-purple-600">NTSA_3.5 Performance</h4>
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center">
                 <span className="text-gray-600">Average Time:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.TEA.average_time_us.toFixed(2)} μs</span>
-                  {results.TEA.average_time_us < results.AES.average_time_us && (
+                  <span className="font-medium mr-2">{results['NTSA_3.5']?.average_time_us?.toFixed(2)} μs</span>
+                  {results['NTSA_3.5']?.average_time_us < results.TEA.average_time_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Faster</span>
                   )}
                 </div>
@@ -301,8 +301,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Min Time:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.TEA.min_time_us.toFixed(2)} μs</span>
-                  {results.TEA.min_time_us < results.AES.min_time_us && (
+                  <span className="font-medium mr-2">{results['NTSA_3.5']?.min_time_us?.toFixed(2)} μs</span>
+                  {results['NTSA_3.5']?.min_time_us < results.TEA.min_time_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Faster</span>
                   )}
                 </div>
@@ -310,8 +310,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Max Time:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.TEA.max_time_us.toFixed(2)} μs</span>
-                  {results.TEA.max_time_us < results.AES.max_time_us && (
+                  <span className="font-medium mr-2">{results['NTSA_3.5']?.max_time_us?.toFixed(2)} μs</span>
+                  {results['NTSA_3.5']?.max_time_us < results.TEA.max_time_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Faster</span>
                   )}
                 </div>
@@ -319,8 +319,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Std Deviation:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.TEA.std_deviation_us.toFixed(2)} μs</span>
-                  {results.TEA.std_deviation_us < results.AES.std_deviation_us && (
+                  <span className="font-medium mr-2">{results['NTSA_3.5']?.std_deviation_us?.toFixed(2)} μs</span>
+                  {results['NTSA_3.5']?.std_deviation_us < results.TEA.std_deviation_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">More Stable</span>
                   )}
                 </div>
@@ -328,8 +328,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Coefficient of Variation:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.TEA.coefficient_of_variation.toFixed(4)}</span>
-                  {results.TEA.coefficient_of_variation < results.AES.coefficient_of_variation ? (
+                  <span className="font-medium mr-2">{results['NTSA_3.5']?.coefficient_of_variation?.toFixed(4)}</span>
+                  {results['NTSA_3.5']?.coefficient_of_variation < results.TEA.coefficient_of_variation ? (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">More Timing-Stable</span>
                   ) : (
                     <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Less Timing-Stable</span>
@@ -340,13 +340,13 @@ const PerformanceAnalysis = () => {
           </div>
 
           <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <h4 className="font-semibold mb-4 text-blue-600">AES Performance</h4>
+            <h4 className="font-semibold mb-4 text-blue-600">TEA Performance</h4>
             <div className="space-y-3">
-              <div className="flex justify-between items-center">
+                <div className="flex justify-between items-center">
                 <span className="text-gray-600">Average Time:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.AES.average_time_us.toFixed(2)} μs</span>
-                  {results.AES.average_time_us < results.TEA.average_time_us && (
+                  <span className="font-medium mr-2">{results.TEA.average_time_us.toFixed(2)} μs</span>
+                  {results.TEA.average_time_us < results['NTSA_3.5']?.average_time_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Faster</span>
                   )}
                 </div>
@@ -354,8 +354,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Min Time:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.AES.min_time_us.toFixed(2)} μs</span>
-                  {results.AES.min_time_us < results.TEA.min_time_us && (
+                  <span className="font-medium mr-2">{results.TEA.min_time_us.toFixed(2)} μs</span>
+                  {results.TEA.min_time_us < results['NTSA_3.5']?.min_time_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Faster</span>
                   )}
                 </div>
@@ -363,8 +363,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Max Time:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.AES.max_time_us.toFixed(2)} μs</span>
-                  {results.AES.max_time_us < results.TEA.max_time_us && (
+                  <span className="font-medium mr-2">{results.TEA.max_time_us.toFixed(2)} μs</span>
+                  {results.TEA.max_time_us < results['NTSA_3.5']?.max_time_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">Faster</span>
                   )}
                 </div>
@@ -372,8 +372,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Std Deviation:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.AES.std_deviation_us.toFixed(2)} μs</span>
-                  {results.AES.std_deviation_us < results.TEA.std_deviation_us && (
+                  <span className="font-medium mr-2">{results.TEA.std_deviation_us.toFixed(2)} μs</span>
+                  {results.TEA.std_deviation_us < results['NTSA_3.5']?.std_deviation_us && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">More Stable</span>
                   )}
                 </div>
@@ -381,8 +381,8 @@ const PerformanceAnalysis = () => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-600">Coefficient of Variation:</span>
                 <div className="flex items-center">
-                  <span className="font-medium mr-2">{results.AES.coefficient_of_variation.toFixed(4)}</span>
-                  {results.AES.coefficient_of_variation < results.TEA.coefficient_of_variation ? (
+                  <span className="font-medium mr-2">{results.TEA.coefficient_of_variation.toFixed(4)}</span>
+                  {results.TEA.coefficient_of_variation < results['NTSA_3.5']?.coefficient_of_variation ? (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">More Timing-Stable</span>
                   ) : (
                     <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Less Timing-Stable</span>
@@ -409,25 +409,25 @@ const PerformanceAnalysis = () => {
           </p>
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h5 className="font-medium text-purple-600 mb-2">TEA Timing Leakage</h5>
+              <h5 className="font-medium text-purple-600 mb-2">NTSA_3.5 Timing Leakage</h5>
               <p className="text-sm text-gray-600">
-                {results.TEA.coefficient_of_variation > 0.01
-                  ? "High timing variance detected. TEA shows significant timing leakage, indicating higher susceptibility to timing-based side-channel analysis."
+                {results['NTSA_3.5']?.coefficient_of_variation > 0.01
+                  ? "High timing variance detected. NTSA_3.5 shows significant timing leakage, indicating higher susceptibility to timing-based side-channel analysis."
                   : "Low timing variance detected."}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Coefficient of Variation: {results.TEA.coefficient_of_variation.toFixed(4)}
+                Coefficient of Variation: {results['NTSA_3.5']?.coefficient_of_variation?.toFixed(4)}
               </p>
             </div>
             <div>
-              <h5 className="font-medium text-blue-600 mb-2">AES Timing Leakage</h5>
+              <h5 className="font-medium text-blue-600 mb-2">TEA Timing Leakage</h5>
               <p className="text-sm text-gray-600">
-                {results.AES.coefficient_of_variation < results.TEA.coefficient_of_variation
-                  ? "Lower timing variance compared to TEA. AES implementation shows better resistance to timing-based side-channel analysis."
+                {results.TEA.coefficient_of_variation < results['NTSA_3.5']?.coefficient_of_variation
+                  ? "Lower timing variance compared to NTSA_3.5. TEA implementation shows better resistance to timing-based side-channel analysis."
                   : "Timing variance detected."}
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Coefficient of Variation: {results.AES.coefficient_of_variation.toFixed(4)}
+                Coefficient of Variation: {results.TEA.coefficient_of_variation.toFixed(4)}
               </p>
             </div>
           </div>
