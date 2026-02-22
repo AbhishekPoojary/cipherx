@@ -336,7 +336,7 @@ const CryptographicAttacks = () => {
     return results.data.TEA.map((item, index) => ({
       bitPosition: item.bit_position,
       TEA: item.avalanche_percentage,
-      AES: results.data.AES[index].avalanche_percentage
+      'NTSA_3.5': results.data['NTSA_3.5']?.[index]?.avalanche_percentage
     }));
   };
 
@@ -346,7 +346,7 @@ const CryptographicAttacks = () => {
     return results.data.TEA.map((item, index) => ({
       delta: item.delta,
       TEA: item.correlation,
-      AES: results.data.AES[index].correlation
+      'NTSA_3.5': results.data['NTSA_3.5']?.[index]?.correlation
     }));
   };
 
@@ -610,9 +610,9 @@ const CryptographicAttacks = () => {
                     </div>
 
                     <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h5 className="font-medium text-blue-600 mb-2">AES Results</h5>
+                      <h5 className="font-medium text-blue-600 mb-2">NTSA_3.5 Results</h5>
                       <div className="space-y-2">
-                        {results.data.AES.map((result, index) => (
+                        {results.data['NTSA_3.5']?.map((result, index) => (
                           <div key={index} className="text-sm">
                             <div className="flex items-center">
                               {result.matches_base ? (
@@ -629,10 +629,10 @@ const CryptographicAttacks = () => {
                           </div>
                         ))}
                       </div>
-                      {!results.data.AES.some(r => r.matches_base) && (
+                      {!results.data['NTSA_3.5']?.some(r => r.matches_base) && (
                         <div className="mt-3 p-2 bg-green-50 rounded text-sm text-green-700">
                           <CheckCircle className="w-4 h-4 inline mr-1" />
-                          AES has no equivalent keys - SECURE!
+                          NTSA_3.5 has no equivalent keys - SECURE!
                         </div>
                       )}
                     </div>
@@ -652,7 +652,7 @@ const CryptographicAttacks = () => {
                         <Tooltip />
                         <Legend />
                         <Bar dataKey="TEA" fill="#8b5cf6" />
-                        <Bar dataKey="AES" fill="#3b82f6" />
+                        <Bar dataKey="NTSA_3.5" fill="#3b82f6" />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
@@ -674,9 +674,9 @@ const CryptographicAttacks = () => {
                     </div>
 
                     <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h5 className="font-medium text-blue-600 mb-2">AES Correlation</h5>
+                      <h5 className="font-medium text-blue-600 mb-2">NTSA_3.5 Correlation</h5>
                       <div className="space-y-1">
-                        {results.data.AES.map((result, index) => (
+                        {results.data['NTSA_3.5']?.map((result, index) => (
                           <div key={index} className="text-sm">
                             <span className="font-medium">Δ{result.delta}:</span> {result.correlation}
                           </div>
@@ -703,7 +703,7 @@ const CryptographicAttacks = () => {
                         <Tooltip />
                         <Legend />
                         <Line type="monotone" dataKey="TEA" stroke="#8b5cf6" strokeWidth={2} />
-                        <Line type="monotone" dataKey="AES" stroke="#3b82f6" strokeWidth={2} />
+                        <Line type="monotone" dataKey="NTSA_3.5" stroke="#3b82f6" strokeWidth={2} />
                       </LineChart>
                     </ResponsiveContainer>
                   </div>
@@ -729,9 +729,9 @@ const CryptographicAttacks = () => {
                     </div>
 
                     <div className="bg-white rounded-lg p-4 border border-gray-200">
-                      <h5 className="font-medium text-blue-600 mb-2">AES Avalanche</h5>
+                      <h5 className="font-medium text-blue-600 mb-2">NTSA_3.5 Avalanche</h5>
                       <div className="space-y-1">
-                        {results.data.AES.map((result, index) => (
+                        {results.data['NTSA_3.5']?.map((result, index) => (
                           <div key={index} className="text-sm">
                             <span className="font-medium">Bit {result.bit_position}:</span> {result.avalanche_percentage.toFixed(2)}%
                           </div>
@@ -739,11 +739,11 @@ const CryptographicAttacks = () => {
                       </div>
                       <div className="mt-2 text-sm">
                         <span className="font-medium">Average: </span>
-                        {(results.data.AES.reduce((sum, r) => sum + r.avalanche_percentage, 0) / results.data.AES.length).toFixed(2)}%
+                        {results.data['NTSA_3.5']?.length ? (results.data['NTSA_3.5'].reduce((sum, r) => sum + r.avalanche_percentage, 0) / results.data['NTSA_3.5'].length).toFixed(2) : '0'}%
                       </div>
-                      <div className="mt-3 p-2 bg-green-50 rounded text-sm text-green-700">
+                      <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-700">
                         <CheckCircle className="w-4 h-4 inline mr-1" />
-                        ~50% avalanche = STRONG diffusion!
+                        Avalanche effect comparison
                       </div>
                     </div>
                   </div>
