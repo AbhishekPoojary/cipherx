@@ -55,7 +55,7 @@ function App() {
             Cryptographic Attack Comparison
           </h1>
           <p className="text-xl text-gray-200">
-            TEA (Tiny Encryption Algorithm) vs AES (Advanced Encryption Standard)
+            NTSA_3.5 vs TEA • AES for file encryption only
           </p>
         </motion.div>
 
